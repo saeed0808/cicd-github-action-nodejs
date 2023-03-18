@@ -1,52 +1,134 @@
-name: Node.js CI
+name: Node.js Pipeline
 
 on:
   push:
-    branches: [ master ]
-  pull_request:
-    branches: [ master ]
+    branches:
+      - main
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
+      - name: Checkout code
+        uses: actions/checkout@v2
 
-    - name: Setup Node.js
-      uses: actions/setup-node@v2-beta
-      with:
-        node-version: '10'
+      - name: Setup Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '14'
 
-    - name: Install dependencies
-      run: npm install
+      - name: Install dependencies
+        run: npm install
 
-#    - name: Run tests
-#      run: npm test
+      - name: Run tests
+        run: npm test
 
-
-#name: SonarQube Analysis
-
-#on:
-#  push:
-#    branches: [ master ]
-
-jobs:
   sonarqube:
-    name: SonarQube
+    needs: build
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: SonarQube Scanner
-        uses: SonarSource/sonarqube-scanner-action@v1
+      - name: Setup Node.js
+        uses: actions/setup-node@v2
         with:
-          sonarqube-url: 'http://localhost:9000'
-          sonarqube-login: ${{ secrets.SONARQUBE_TOKEN }}
+          node-version: '14'
 
+      - name: Install SonarScanner
+        run: |
+          curl -sL https://deb.nodesource.com/setup_lts.x | sudo -E bash -
+          sudo apt-get install -y nodejs
+          sudo npm install -g sonarqube-scanner
+
+      - name: Run SonarScanner
+        run: |
+          sonar-scanner \
+            -Dsonar.projectKey=$GITHUB_REPOSITORY \
+            -Dsonar.sources=./ \
+            -Dsonar.host.url=$SONARQUBE_URL \
+            -Dsonar.login=$SONARQUBE_TOKEN
+
+  build-docker-image:
+    needs: sonarqube
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Build Docker image
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          push: true
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/nodejs-app:${{ github.sha }}
+
+  deploy:
+    needs: build-docker-image
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Pull Docker image
+        uses: docker/metadata-action@v3
+        with:
+          images: ${{ secrets.DOCKERHUB_USERNAME }}/nodejs-app:${{ github.sha }}
+      - name: Start Docker container
+        run: |
+          docker run --rm -p 3000:3000 ${{ secrets.DOCKERHUB_USERNAME }}/nodejs-app:${{ github.sha }}
+
+#################
+#name: Node.js CI
+#
+#on:
+#  push:
+#    branches: [ master ]
+#  pull_request:
+#    branches: [ master ]
+#
+#jobs:
+#  build:
+#    runs-on: ubuntu-latest
+#
+#    steps:
+#    - name: Checkout code
+#      uses: actions/checkout@v2
+#
+#    - name: Setup Node.js
+#      uses: actions/setup-node@v2-beta
+#      with:
+#        node-version: '10'
+#
+#    - name: Install dependencies
+#      run: npm install
+#
+##    - name: Run tests
+##      run: npm test
+#
+#
+##name: SonarQube Analysis
+#
+##on:
+##  push:
+##    branches: [ master ]
+#
+#jobs:
+#  sonarqube:
+#    name: SonarQube
+#    runs-on: ubuntu-latest
+#
+#    steps:
+#      - name: Checkout code
+#        uses: actions/checkout@v2
+#
+#      - name: SonarQube Scanner
+#        uses: SonarSource/sonarqube-scanner-action@v1
+#        with:
+#          sonarqube-url: 'http://localhost:9000'
+#          sonarqube-login: ${{ secrets.SONARQUBE_TOKEN }}
+#
 
 #    - name: SonarQube Scan
 #      uses: sonarsource/sonarqube-scan-action@v1
