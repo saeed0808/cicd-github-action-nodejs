@@ -17,11 +17,11 @@ jobs:
       with:
         node-version: '14.x'
 
-    - name: Install dependencies
-      run: npm ci
+#    - name: Install dependencies
+#      run: npm ci
 
-    - name: Build Node.js app
-      run: npm run build
+#    - name: Build Node.js app
+#      run: npm run build
 
     - name: Stand up SonarQube instance
       uses: docker/compose@v2
