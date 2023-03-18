@@ -26,11 +26,11 @@ jobs:
 #      run: npm test
 
 
-name: SonarQube Analysis
+#name: SonarQube Analysis
 
-on:
-  push:
-    branches: [ master ]
+#on:
+#  push:
+#    branches: [ master ]
 
 jobs:
   sonarqube:
