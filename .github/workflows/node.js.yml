@@ -5,10 +5,10 @@ on:
     branches:
       - master
 
-env:
-  SONARQUBE_URL: http://127.0.0.1:9000
-  DOCKER_USERNAME: <your DockerHub username>
-  DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+#env:
+#  SONARQUBE_URL: http://127.0.0.1:9000
+#  DOCKER_USERNAME: <your DockerHub username>
+#  DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
 
 jobs:
   build:
@@ -54,33 +54,33 @@ jobs:
 #            -Dsonar.host.url=$SONARQUBE_URL \
 #            -Dsonar.login=$SONARQUBE_TOKEN
 #
-  build-docker-image:
-    needs: sonarqube
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-
-      - name: Build Docker image
-        uses: docker/build-push-action@v2
-        with:
-          context: .
-          push: true
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/nodejs-app:${{ github.sha }}
-
-  deploy:
-    needs: build-docker-image
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Pull Docker image
-        uses: docker/metadata-action@v3
-        with:
-          images: ${{ secrets.DOCKERHUB_USERNAME }}/nodejs-app:${{ github.sha }}
-      - name: Start Docker container
-        run: |
-          docker run --rm -p 3000:3000 ${{ secrets.DOCKERHUB_USERNAME }}/nodejs-app:${{ github.sha }}
+#  build-docker-image:
+#    needs: sonarqube
+#    runs-on: ubuntu-latest
+#
+#    steps:
+#      - name: Checkout code
+#        uses: actions/checkout@v2
+#
+#      - name: Build Docker image
+#        uses: docker/build-push-action@v2
+#        with:
+#          context: .
+#          push: true
+#          tags: ${{ secrets.DOCKERHUB_USERNAME }}/nodejs-app:${{ github.sha }}
+#
+#  deploy:
+#    needs: build-docker-image
+#    runs-on: ubuntu-latest
+#
+#    steps:
+#      - name: Pull Docker image
+#        uses: docker/metadata-action@v3
+#        with:
+#          images: ${{ secrets.DOCKERHUB_USERNAME }}/nodejs-app:${{ github.sha }}
+#      - name: Start Docker container
+#        run: |
+#          docker run --rm -p 3000:3000 ${{ secrets.DOCKERHUB_USERNAME }}/nodejs-app:${{ github.sha }}
 
 #################
 #name: Node.js CI
