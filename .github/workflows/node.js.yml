@@ -25,18 +25,41 @@ jobs:
 #    - name: Run tests
 #      run: npm test
 
-    - name: SonarQube Scan
-      uses: sonarsource/sonarqube-scan-action@v1
-      with:
-        sonarqube-url: 'http://localhost:9000'
-        scanner-version: '4.5.0'
-        project-key: 'nodejs-hello-world'
-        project-name: 'Node.js Hello World'
-        project-version: '1.0.0'
-        sources: '.'
-        extra-properties: |
-          sonar.javascript.file.suffixes=.js
-          sonar.coverage.exclusions=node_modules/**/*,test/**/*
+
+name: SonarQube Analysis
+
+on:
+  push:
+    branches: [ master ]
+
+jobs:
+  sonarqube:
+    name: SonarQube
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: SonarQube Scanner
+        uses: SonarSource/sonarqube-scanner-action@v1
+        with:
+          sonarqube-url: 'http://localhost:9000'
+          sonarqube-login: ${{ secrets.SONARQUBE_TOKEN }}
+
+
+#    - name: SonarQube Scan
+#      uses: sonarsource/sonarqube-scan-action@v1
+#      with:
+#        sonarqube-url: 'http://192.168.33.40:9000'
+#        scanner-version: '4.5.0'
+#        project-key: 'nodejs-hello-world'
+#        project-name: 'Node.js Hello World'
+#        project-version: '1.0.0'
+#        sources: '.'
+#        extra-properties: |
+#          sonar.javascript.file.suffixes=.js
+#          sonar.coverage.exclusions=node_modules/**/*,test/**/*
 #
 #    - name: Build Docker image
 #      run: |
