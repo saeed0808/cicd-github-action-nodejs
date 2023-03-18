@@ -5,6 +5,11 @@ on:
     branches:
       - master
 
+env:
+  SONARQUBE_URL: http://localhost:9000
+  DOCKER_USERNAME: <your DockerHub username>
+  DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+
 jobs:
   build:
     runs-on: ubuntu-latest
