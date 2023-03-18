@@ -24,7 +24,7 @@ jobs:
       run: npm run build
 
     - name: Stand up SonarQube instance
-      uses: docker/compose@v1.29.2
+      uses: docker/compose@v2
       with:
         file: docker-compose.yml
         command: up -d
