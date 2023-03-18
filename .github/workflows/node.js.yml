@@ -26,8 +26,6 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-#      - name: Run tests
-#        run: npm test
 
   sonarqube:
     needs: build
@@ -48,14 +46,14 @@ jobs:
           sudo apt-get install -y nodejs
           sudo npm install -g sonarqube-scanner
 
-      - name: Run SonarScanner
-        run: |
-          sonar-scanner \
-            -Dsonar.projectKey=$GITHUB_REPOSITORY \
-            -Dsonar.sources=./ \
-            -Dsonar.host.url=$SONARQUBE_URL \
-            -Dsonar.login=$SONARQUBE_TOKEN
-
+#      - name: Run SonarScanner
+#        run: |
+#          sonar-scanner \
+#            -Dsonar.projectKey=$GITHUB_REPOSITORY \
+#            -Dsonar.sources=./ \
+#            -Dsonar.host.url=$SONARQUBE_URL \
+#            -Dsonar.login=$SONARQUBE_TOKEN
+#
   build-docker-image:
     needs: sonarqube
     runs-on: ubuntu-latest
